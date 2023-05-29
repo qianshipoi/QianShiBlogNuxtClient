@@ -11,6 +11,11 @@ export default defineNuxtConfig({
       }
     }
   },
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://localhost:7245/api'
+    }
+  },
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
@@ -28,5 +33,8 @@ export default defineNuxtConfig({
       name: 'page',
       mode: 'out-in'
     }
+  },
+  typescript: {
+    shim: false
   }
 })

@@ -44,6 +44,7 @@ onMounted(() => {
 <style scoped lang="scss">
 header {
   position: fixed;
+  z-index: 999;
   top: 0;
   height: 75px;
   width: 100%;

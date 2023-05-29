@@ -13,10 +13,31 @@
 <script setup>
 import { message } from 'ant-design-vue'
 
-const { data, error } = await useLazyFetch('https://localhost:7245/api/BlogMeta?Type=1&PageNumber=1&PageSize=100')
+import { getMetas } from '../utils/api'
 
-console.log(error)
+getMetas(1).then(res => {
+  console.log(res.value)
+}).catch(err => {
+  console.log(err)
+})
 
+// if (process.isClient) {
+
+//   const { data, error } = await useFetch('https://localhost:7245/api/BlogMeta', {
+//     query: {
+//       type: 1,
+//       pageNumber: 1,
+//       pageSize: 100
+//     }
+//   })
+//   console.log(error)
+//   watch(data, (newPosts) => {
+//     console.log(newPosts)
+//     // Because posts starts out null, you will not have access
+//     // to its contents immediately, but you can watch it.
+//   })
+
+// }
 // useLayout()
 
 const open = () => {

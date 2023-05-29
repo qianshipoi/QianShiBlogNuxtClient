@@ -1,15 +1,10 @@
 <template>
   <div>
-    <template v-if="layout == 'default'">
-      <AppHeader />
-      <slot />
-      <AppFooter />
-    </template>
-
-    <div style="display: flex;" v-else>
-      <AppMobileMenu />
-      <div style="flex: 1; position: relative;">
-        <AppMobileHeader />
+    <div :style="{ display: layout === 'default' ? 'block' : 'flex' }">
+      <AppHeader v-if="layout === 'default'" />
+      <AppMobileMenu v-else />
+      <div style="flex:1;position:relative">
+        <AppMobileHeader v-if="layout !== 'default'" />
         <slot />
       </div>
     </div>
