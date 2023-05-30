@@ -1,5 +1,7 @@
 import { _AsyncData } from "nuxt/dist/app/composables/asyncData";
 import { message } from "ant-design-vue";
+import { getToken } from "./auth";
+
 
 const baseURL = "http://localhost:5142/api/"
 
@@ -17,6 +19,12 @@ export interface ValueConfig {
 const fetch = (url: string, options?: any): Promise<any> => {
   const reqURL = baseURL + url;
   return new Promise((resolve, reject) => {
+    const token = getToken()
+    let headers: Record<string, string> = {}
+    token && (headers['Authorization'] = `Bearer ${token}`);
+
+    options = Object.assign({}, options, { headers })
+
     useFetch(reqURL, { ...options }).then(({ data, error }: _AsyncData<any, any>) => {
       if (error.value) {
         reject(error.value)

@@ -1,15 +1,24 @@
 <template>
   <NuxtLayout>
-    <NuxtPage class="main" />
+    <NuxtPage class="main" :key="$route.fullPath" />
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-
+import { ConfigProvider } from 'ant-design-vue'
+ConfigProvider.config({
+  theme: {
+    primaryColor: '#25b864',
+  },
+});
 </script>
 
 <style>
 body {
+  min-height: 100vh;
+}
+
+#__nuxt {
   min-height: 100vh;
 }
 
@@ -20,7 +29,7 @@ body {
 
 .page-enter-active,
 .page-leave-active {
-  transition: all 0.4s;
+  transition: all 0.3s;
 }
 
 .page-enter-from,

@@ -17,32 +17,52 @@
         </a-form-item>
       </a-form>
     </a-card>
-
-
   </div>
 </template>
 
 <script setup lang='ts'>
+
+import { message } from 'ant-design-vue';
+import { login } from '../utils/api'
+
 definePageMeta({
   layout: 'none'
 })
+
 
 interface FormState {
   username: string;
   password: string;
 }
 const formState = reactive<FormState>({
-  username: '',
-  password: '',
+  username: 'kuriyama@qq.com',
+  password: 'a123456a',
 });
 
+const token = useCookie('token')
+const router = useRouter()
+const route = useRoute()
 const loading = ref<boolean>(false)
 
 const onFinish = (values: any) => {
   loading.value = true;
-  setTimeout(() => {
-    loading.value = false
-  }, 3000);
+
+  login(formState.username.trim(), formState.password.trim()).then(res => {
+    if (res.value.succeeded) {
+      message.success('登录成功！')
+      token.value = res.value.data.jwToken
+      const redirect = route.query['redirect']?.toString()
+      redirect && navigateTo(redirect)
+
+    } else {
+      message.warning(res.value.message)
+    }
+  }).catch(err => {
+    message.error(err)
+  }).finally(() => {
+    loading.value = false;
+  })
+
   console.log('Success:', values);
 };
 
