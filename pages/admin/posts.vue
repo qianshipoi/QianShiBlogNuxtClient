@@ -57,17 +57,8 @@ import { getPosts } from '../../utils/api'
 import { DownOutlined, SearchOutlined, FileAddOutlined } from '@ant-design/icons-vue';
 import type { UnwrapRef } from 'vue';
 import type { FormProps } from 'ant-design-vue';
+import { GlobalPagedResponse, PostType } from '~/types/appTypes';
 
-type PostType = {
-  id: number,
-  title: string,
-  subtitle: string | null,
-  order: number,
-  status: number,
-  type: number,
-  allowComment: boolean,
-  commentCount: number
-}
 interface FormState {
   user: string;
   title: string;
@@ -88,13 +79,22 @@ const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
 };
 
 
-onMounted(() => {
-  getPosts().then(res => {
-    console.log(res.value);
-    data.value = res.value.items as PostType[]
-  }).catch(err => {
-    message.error(err)
-  })
+const token = getToken()
+let headers: Record<string, string> = {}
+token && (headers['Authorization'] = `Bearer ${token}`);
+
+const { pending, data: posts } = useLazyFetch('http://localhost:5142/api/BlogContent', {
+  params: {
+    type: 0,
+    pageNumber: 1,
+    pageSize: 100
+  },
+  headers,
+  server: false
+})
+
+watch(posts, (newPosts) => {
+  data.value = (newPosts as GlobalPagedResponse<PostType>).items
 })
 
 const columns = [
@@ -123,7 +123,6 @@ const columns = [
     key: 'action',
   },
 ];
-
 
 </script>
 

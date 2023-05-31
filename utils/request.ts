@@ -47,20 +47,20 @@ const fetch = (url: string, options?: any): Promise<any> => {
 
 export default new class Http {
 
-  get(url: string, params?: any): Promise<any> {
-    return fetch(url, { method: 'get', params })
+  get(url: string, params?: any, server?: boolean): Promise<any> {
+    return fetch(url, { method: 'get', params, server })
   }
 
-  post(url: string, body?: any): Promise<any> {
-    return fetch(url, { method: 'post', body })
+  post(url: string, body?: any, server?: boolean): Promise<any> {
+    return fetch(url, { method: 'post', body, server })
   }
 
-  put(url: string, body?: any): Promise<any> {
-    return fetch(url, { method: 'put', body })
+  put(url: string, body?: any, server?: boolean): Promise<any> {
+    return fetch(url, { method: 'put', body, server })
   }
 
-  delete(url: string, params?: any): Promise<any> {
-    return fetch(url, { method: 'delete', params })
+  delete(url: string, params?: any, server?: boolean): Promise<any> {
+    return fetch(url, { method: 'delete', params, server })
   }
 
 }

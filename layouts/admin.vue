@@ -11,7 +11,7 @@
           <diff-outlined />
           <span>Posts</span>
         </a-menu-item>
-        <a-menu-item key="/admin/metas">
+        <a-menu-item key="/admin/category">
           <paper-clip-outlined />
           <span>Metas</span>
         </a-menu-item>

@@ -17,5 +17,5 @@ export const getPosts = () => {
     type: 0,
     pageNumber: 1,
     pageSize: 100
-  })
+  }, false)
 }
