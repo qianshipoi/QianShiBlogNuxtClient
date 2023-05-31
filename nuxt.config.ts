@@ -36,5 +36,8 @@ export default defineNuxtConfig({
   },
   typescript: {
     shim: false
+  },
+  routeRules: {
+    '/admin/**': { ssr: false },
   }
 })

@@ -1,11 +1,24 @@
+import { BlogMeta, BlogMetaCreateDto, BlogMetaType } from '~/types/appTypes'
 import Http from './request'
 
-export const getMetas = (type: 1 | 2) => {
+export const getMetas = (type: BlogMetaType) => {
   return Http.get('BlogMeta', {
     type: type,
     pageNumber: 1,
     pageSize: 100
-  })
+  }, false)
+}
+
+export const addMeta = (meta: BlogMetaCreateDto) => {
+  return Http.post('BlogMeta', meta, false)
+}
+
+export const delMeta = (id: number) => {
+  return Http.delete(`BlogMeta/${id}`, {}, false)
+}
+
+export const updMeta = (id: number, meta: BlogMetaCreateDto) => {
+  return Http.put(`BlogMeta/${id}`, meta, false)
 }
 
 export const login = (email: string, password: string) => {
