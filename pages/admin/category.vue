@@ -11,9 +11,10 @@
         </template>
         <template v-else-if="column.key === 'action'">
           <span>
-            <a>Invite 一 {{ record.title }}</a>
             <a-divider type="vertical" />
-            <a>Delete</a>
+            <a-popconfirm title="确定删除该数据?" ok-text="确定" cancel-text="取消" @confirm="deleteConfirm(record.id)">
+              <a href="#">Delete</a>
+            </a-popconfirm>
           </span>
         </template>
       </template>
@@ -21,7 +22,7 @@
 
     <a-modal v-model:visible="addVisible" title="Title" :confirm-loading="confirmLoading" @ok="handleOk">
       <a-form ref="formRef" :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }"
-        autocomplete="off" @finish="onFinish" :rules="rules" @finishFailed="onFinishFailed">
+        autocomplete="off" :rules="rules">
         <a-form-item has-feedback label="名称" name="name">
           <a-input v-model:value="formState.name" />
         </a-form-item>
@@ -33,21 +34,17 @@
         <a-form-item has-feedback label="父级" name="parent">
           <a-select v-model:value="formState.parent" style="width: 120px">
             <a-select-option :value="0">无</a-select-option>
-            <a-select-option :value="1">测试</a-select-option>
+            <a-select-option :value="item.id" v-for="item in data" :key="item.id">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-item>
-
       </a-form>
     </a-modal>
-
   </div>
 </template>
 
 <script setup lang='ts'>
-import { BlogMeta, GlobalPagedResponse } from '~/types/appTypes';
-import type { Rule } from 'ant-design-vue/es/form';
-import type { FormInstance } from 'ant-design-vue';
-
+import { message } from 'ant-design-vue';
+import { BlogMeta, GlobalPagedResponse, BlogMetaType } from '~/types/appTypes';
 
 const data = ref<BlogMeta[]>([])
 
@@ -73,69 +70,21 @@ const token = getToken()
 let headers: Record<string, string> = {}
 token && (headers['Authorization'] = `Bearer ${token}`);
 
-const { pending, data: categoryDatas, error } = useLazyFetch('http://localhost:5142/api/BlogMeta', {
-  params: {
-    type: 1,
-    pageNumber: 1,
-    pageSize: 100
-  },
-  headers,
-  server: false
+onMounted(() => {
+  getData()
 })
 
-watch(categoryDatas, () => {
-  data.value = (categoryDatas.value as GlobalPagedResponse<BlogMeta>).items
-})
-
-const modalText = ref<string>('Content of the modal');
-const addVisible = ref<boolean>(false);
-const confirmLoading = ref<boolean>(false);
-
-const showModal = () => {
-  addVisible.value = true;
-};
-
-const formRef = ref<FormInstance>();
-const handleOk = async () => {
-  let isSucceeded = false
-  try {
-    await formRef.value?.validateFields();
-    isSucceeded = true;
-  } catch (error) {
-    isSucceeded = false
-  }
-  if (isSucceeded) {
-    modalText.value = 'The modal will be closed after two seconds';
-    confirmLoading.value = true;
-    setTimeout(() => {
-      addVisible.value = false;
-      confirmLoading.value = false;
-    }, 2000);
-  }
-};
-interface FormState {
-  name: string;
-  description: string;
-  parent: number
+const getData = () => {
+  getMetas(BlogMetaType.Category).then(res => {
+    data.value = (res.value as GlobalPagedResponse<BlogMeta>).items
+  }).catch(err => {
+    message.error(err)
+  })
 }
 
-const formState = reactive<FormState>({
-  name: '',
-  description: '',
-  parent: 0
-});
-const onFinish = (values: any) => {
-  console.log('Success:', values);
-};
+const { loading: confirmLoading, visible: addVisible, showModal, handleOk, formRef, formState, rules } = useAddMeta(BlogMetaType.Category)
 
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
-const rules: Record<string, Rule[]> = {
-  name: [{ required: true, trigger: 'change' }],
-  description: [{ max: 255, trigger: 'change' }],
-};
-
+const { delMeta: deleteConfirm } = useDelMeta()
 
 </script>
 

@@ -30,15 +30,7 @@ const fetch = (url: string, options?: any): Promise<any> => {
         reject(error.value)
         return;
       }
-
-      const value = data.value
-      if (!value) {
-        reject(value)
-      } else if (value.code == 100) {
-        message.error(value.message)
-      } else {
-        resolve(ref(value))
-      }
+      resolve(data)
     }).catch((err: any) => {
       reject(err)
     })
