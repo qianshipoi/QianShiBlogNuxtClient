@@ -99,8 +99,7 @@ const formRef = ref<FormInstance>();
 const handleOk = async () => {
   let isSucceeded = false
   try {
-    const values = await formRef.value?.validateFields();
-    console.log(values);
+    await formRef.value?.validateFields();
     isSucceeded = true;
   } catch (error) {
     isSucceeded = false
