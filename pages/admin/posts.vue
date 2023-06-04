@@ -48,6 +48,9 @@
         </template>
       </template>
     </a-table>
+
+    <MdEditor />
+
   </a-space>
 </template>
 
@@ -78,24 +81,21 @@ const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
   console.log(errors);
 };
 
+const loading = ref<boolean>(false)
 
-const token = getToken()
-let headers: Record<string, string> = {}
-token && (headers['Authorization'] = `Bearer ${token}`);
+const getData = () => {
+  loading.value = true;
 
-const { pending, data: posts } = useLazyFetch('http://localhost:5142/api/BlogContent', {
-  params: {
-    type: 0,
-    pageNumber: 1,
-    pageSize: 100
-  },
-  headers,
-  server: false
-})
+  getPosts().then(res => {
+    data.value = (res.value as GlobalPagedResponse<PostType>).items
+  }).catch(err => {
+    message.error(err)
+  }).finally(() => {
+    loading.value = true
+  })
+}
 
-watch(posts, (newPosts) => {
-  data.value = (newPosts as GlobalPagedResponse<PostType>).items
-})
+onMounted(() => getData())
 
 const columns = [
   {

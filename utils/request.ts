@@ -3,7 +3,7 @@ import { message } from "ant-design-vue";
 import { getToken } from "./auth";
 
 
-const baseURL = "http://localhost:5142/api/"
+const baseURL = "/api/" //"http://localhost:5142/api/"
 
 export interface ResponseConfig {
   code: number,

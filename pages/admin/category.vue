@@ -65,11 +65,6 @@ const columns = [
   },
 ];
 
-const token = getToken()
-
-let headers: Record<string, string> = {}
-token && (headers['Authorization'] = `Bearer ${token}`);
-
 onMounted(() => {
   getData()
 })

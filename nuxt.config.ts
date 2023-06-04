@@ -9,6 +9,17 @@ export default defineNuxtConfig({
           additionalData: '@use "@/assets/_colors.scss" as *;'
         }
       }
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5142/',
+          changeOrigin: true
+        }
+      }
+    },
+    optimizeDeps: {
+      include: ['@kangc/v-md-editor/lib/theme/vuepress.js']
     }
   },
   runtimeConfig: {
@@ -46,5 +57,10 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/admin/**': { ssr: false },
-  }
+    '/admin': { ssr: false }
+  },
+  plugins: [
+    '~/plugins/antd.ts',
+    '~/plugins/vMdEditor.client.ts'
+  ]
 })
