@@ -2,7 +2,7 @@
   <div>
     <a-button @click="showModal">新建分类</a-button>
 
-    <a-table :columns="columns" :data-source="data" bordered>
+    <a-table :columns="columns" :data-source="metas.categorys" bordered>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'title'">
           <a>
@@ -12,7 +12,8 @@
         <template v-else-if="column.key === 'action'">
           <span>
             <a-divider type="vertical" />
-            <a-popconfirm title="确定删除该数据?" ok-text="确定" cancel-text="取消" @confirm="deleteConfirm(record.id)">
+            <a-popconfirm title="确定删除该数据?" ok-text="确定" cancel-text="取消"
+              @confirm="metas.delMeta(record.id, BlogMetaType.Category)">
               <a href="#">Delete</a>
             </a-popconfirm>
           </span>
@@ -21,7 +22,7 @@
     </a-table>
 
     <a-modal v-model:visible="addVisible" title="Title" :confirm-loading="confirmLoading" @ok="handleOk">
-      <a-form ref="formRef" :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }"
+      <a-form ref="formRef" :model="formState" name="basic" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }"
         autocomplete="off" :rules="rules">
         <a-form-item has-feedback label="名称" name="name">
           <a-input v-model:value="formState.name" />
@@ -32,9 +33,10 @@
         </a-form-item>
 
         <a-form-item has-feedback label="父级" name="parent">
-          <a-select v-model:value="formState.parent" style="width: 120px">
+          <a-select v-model:value="formState.parent" style="width: 100%">
             <a-select-option :value="0">无</a-select-option>
-            <a-select-option :value="item.id" v-for="item in data" :key="item.id">{{ item.name }}</a-select-option>
+            <a-select-option :value="item.id" v-for="item in metas.$state.categorys"
+              :key="item.id">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-item>
       </a-form>
@@ -43,10 +45,10 @@
 </template>
 
 <script setup lang='ts'>
-import { message } from 'ant-design-vue';
-import { BlogMeta, GlobalPagedResponse, BlogMetaType } from '~/types/appTypes';
+import { useMetas } from '~/stores/metas';
+import { BlogMetaType } from '~/types/appTypes';
 
-const data = ref<BlogMeta[]>([])
+const metas = useMetas()
 
 const columns = [
   {
@@ -66,22 +68,10 @@ const columns = [
 ];
 
 onMounted(() => {
-  getData()
+  metas.getMetas(BlogMetaType.Category)
 })
-
-const getData = () => {
-  getMetas(BlogMetaType.Category).then(res => {
-    data.value = (res.value as GlobalPagedResponse<BlogMeta>).items
-  }).catch(err => {
-    message.error(err)
-  })
-}
 
 const { loading: confirmLoading, visible: addVisible, showModal, handleOk, formRef, formState, rules } = useAddMeta(BlogMetaType.Category)
 
-const { delMeta: deleteConfirm } = useDelMeta()
-
 </script>
 
-<style>
-</style>

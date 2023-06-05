@@ -4,7 +4,6 @@
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" @select="selectChanged" theme="light" mode="inline">
         <a-menu-item key="/admin/dashboard">
-
           <DashboardOutlined />
           <span>Dashboard</span>
         </a-menu-item>
@@ -22,11 +21,20 @@
             <span>create</span>
           </a-menu-item>
         </a-sub-menu>
-
-        <a-menu-item key="/admin/category">
-          <paper-clip-outlined />
-          <span>Metas</span>
-        </a-menu-item>
+        <a-sub-menu key="/admin/metas">
+          <template #icon>
+            <paper-clip-outlined />
+          </template>
+          <template #title>Metas</template>
+          <a-menu-item key="/admin/metas/category">
+            <diff-outlined />
+            <span>category</span>
+          </a-menu-item>
+          <a-menu-item key="/admin/metas/tags">
+            <diff-outlined />
+            <span>tags</span>
+          </a-menu-item>
+        </a-sub-menu>
       </a-menu>
     </a-layout-sider>
     <a-layout>
@@ -65,6 +73,7 @@ useHead({
 const route = useRoute()
 
 const collapsed = ref<boolean>(false)
+
 const selectedKeys = ref<string[]>([route.path])
 const selectChanged = (e: any) => {
   navigateTo(e.key);

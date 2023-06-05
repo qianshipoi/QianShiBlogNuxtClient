@@ -1,12 +1,15 @@
 import { FormInstance, message } from "ant-design-vue";
 import { Rule } from "ant-design-vue/es/form";
+import { useMetas } from "~/stores/metas";
 import { BlogMetaType } from "~/types/appTypes";
 import { addMeta } from "~/utils/api"
 
 export const useAddMeta = (type: BlogMetaType) => {
   const visible = ref(false)
-  const loading = ref(false)
 
+  const metas = useMetas()
+
+  const loading = computed(() => metas.$state.loading)
   interface FormState {
     name: string;
     description: string;
@@ -39,17 +42,10 @@ export const useAddMeta = (type: BlogMetaType) => {
       isSucceeded = false
     }
     if (isSucceeded) {
-      loading.value = true;
-
-      addMeta({ ...toRaw(formState), type })
-        .then(res => {
-          message.success('添加成功！');
-          visible.value = false;
-        }).catch(err => {
-          message.error(err)
-        }).finally(() => {
-          loading.value = false;
-        })
+      const result = await metas.addMeta({ ...toRaw(formState), type })
+      if (result) {
+        visible.value = false
+      }
     }
   };
 
@@ -58,7 +54,7 @@ export const useAddMeta = (type: BlogMetaType) => {
     rules,
     visible,
     formState,
-    loading: computed(() => loading.value),
+    loading,
     showModal,
     handleOk
   }

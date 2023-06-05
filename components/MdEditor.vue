@@ -1,6 +1,8 @@
 <template>
   <ClientOnly fallback-tag="span" fallback="Loading comments...">
-    <VueMarkdownEditor ref="editor" :disabled-menus="[]" v-model="content" height="500px" @change="handleChange" />
+    <VueMarkdownEditor ref="editor"
+      left-toolbar="undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code | tip emoji | save"
+      :disabled-menus="[]" v-model="content" height="500px" @change="handleChange" />
   </ClientOnly>
 </template>
 

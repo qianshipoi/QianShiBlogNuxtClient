@@ -19,11 +19,8 @@
         </a-cascader>
       </a-form-item>
       <a-form-item label="标签">
-        <a-cascader v-model="formState.metas" multiple max-tag-count="responsive" :options="tagOptions">
-          <template #tagRender="data">
-            <a-tag :key="data.value" color="blue">{{ data.label }}</a-tag>
-          </template>
-        </a-cascader>
+        <a-select v-model="formState.metas" mode="tags" style="width: 100%" placeholder="Tags Mode"
+          :options="tagOptions"></a-select>
       </a-form-item>
     </a-form>
     <a-space>
@@ -35,7 +32,7 @@
 
 <script setup lang='ts'>
 import { BlogMeta, BlogMetaType, GlobalPagedResponse } from '~/types/appTypes';
-import type { CascaderProps } from 'ant-design-vue';
+import type { CascaderProps, SelectProps } from 'ant-design-vue';
 
 interface FormState {
   title: string,
@@ -57,15 +54,15 @@ const formState = reactive<FormState>({
 
 const categoryOptions = ref<CascaderProps['options']>([])
 
-const tagOptions = ref<CascaderProps['options']>([])
+const tagOptions = ref<SelectProps['options']>([])
 
 getMetas(BlogMetaType.Category).then(res => {
-  const metas = (res.value as GlobalPagedResponse<BlogMeta>).items
+  const metas = res.items
   categoryOptions.value = getTreeMeta(toRaw(metas), 0)
 })
 
 getMetas(BlogMetaType.Tag).then(res => {
-  const metas = (res.value as GlobalPagedResponse<BlogMeta>).items
+  const metas = res.items
   tagOptions.value = getTreeMeta(toRaw(metas), 0)
 })
 
