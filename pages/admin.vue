@@ -4,13 +4,25 @@
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" @select="selectChanged" theme="light" mode="inline">
         <a-menu-item key="/admin/dashboard">
+
           <DashboardOutlined />
           <span>Dashboard</span>
         </a-menu-item>
-        <a-menu-item key="/admin/posts">
-          <diff-outlined />
-          <span>Posts</span>
-        </a-menu-item>
+        <a-sub-menu key="/admin/posts">
+          <template #icon>
+            <diff-outlined />
+          </template>
+          <template #title>Posts</template>
+          <a-menu-item key="/admin/posts/list">
+            <diff-outlined />
+            <span>list</span>
+          </a-menu-item>
+          <a-menu-item key="/admin/posts/create">
+            <diff-outlined />
+            <span>create</span>
+          </a-menu-item>
+        </a-sub-menu>
+
         <a-menu-item key="/admin/category">
           <paper-clip-outlined />
           <span>Metas</span>

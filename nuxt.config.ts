@@ -1,8 +1,14 @@
+import prismjs from 'vite-plugin-prismjs';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   vite: {
-    plugins: [],
+    plugins: [
+      prismjs({
+        // languages: ['json'],
+        languages: 'all',
+      }),
+    ],
     css: {
       preprocessorOptions: {
         scss: {
@@ -57,7 +63,8 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/admin/**': { ssr: false },
-    '/admin': { ssr: false }
+    '/admin': { ssr: false },
+    '/login': { ssr: false }
   },
   plugins: [
     '~/plugins/antd.ts',

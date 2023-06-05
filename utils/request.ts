@@ -25,14 +25,33 @@ const fetch = (url: string, options?: any): Promise<any> => {
 
     options = Object.assign({}, options, { headers })
 
-    useFetch(reqURL, { ...options }).then(({ data, error }: _AsyncData<any, any>) => {
-      if (error.value) {
-        reject(error.value)
-        return;
+    const route = useRoute()
+
+    useFetch(reqURL, {
+      ...options,
+      onRequest({ request, options }) {
+      },
+      onRequestError({ request, options, error }) {
+        console.log(error);
+        reject(error)
+      },
+      onResponse({ request, response, error }) {
+        if (response.status === 401) {
+          navigateTo({
+            path: '/login',
+            query: {
+              redirect: route.fullPath
+            }
+          })
+          reject("请重新登录")
+          return
+        }
+
+        resolve(toRef(response._data))
+      },
+      onResponseError({ request, response, options }) {
+
       }
-      resolve(data)
-    }).catch((err: any) => {
-      reject(err)
     })
   })
 }

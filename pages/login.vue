@@ -53,7 +53,6 @@ const onFinish = (values: any) => {
       token.value = res.value.data.jwToken
       const redirect = route.query['redirect']?.toString()
       redirect && navigateTo(redirect)
-
     } else {
       message.warning(res.value.message)
     }
@@ -62,8 +61,6 @@ const onFinish = (values: any) => {
   }).finally(() => {
     loading.value = false;
   })
-
-  console.log('Success:', values);
 };
 
 const onFinishFailed = (errorInfo: any) => {
