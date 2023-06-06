@@ -12,11 +12,19 @@
         <MdEditor ref="editor" v-model="formState.text" />
       </a-form-item>
       <a-form-item label="分类">
-        <a-cascader v-model="formState.metas" multiple max-tag-count="responsive" :options="categoryOptions">
-          <template #tagRender="data">
-            <a-tag :key="data.value" color="blue">{{ data.label }}</a-tag>
+        <a-tree-select v-model:value="formState.metas" show-search style="width: 100%"
+          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }" placeholder="Please select" allow-clear multiple
+          :show-checked-strategy="SHOW_ALL" tree-default-expand-all :tree-data="treeData" tree-node-filter-prop="label">
+          <template #tagRender="{ label, closable, onClose, option }">
+            <a-tag :closable="closable" :color="option.color" style="margin-right: 3px" @close="onClose">
+              {{ label }}&nbsp;&nbsp;
+            </a-tag>
           </template>
-        </a-cascader>
+          <template #title="{ value: val, label }">
+            <b v-if="val === 'parent 1-1'" style="color: #08c">{{ val }}</b>
+            <template v-else>{{ label }}</template>
+          </template>
+        </a-tree-select>
       </a-form-item>
       <a-form-item label="标签">
         <a-select v-model="formState.metas" mode="tags" style="width: 100%" placeholder="Tags Mode"
@@ -31,8 +39,11 @@
 </template>
 
 <script setup lang='ts'>
-import { BlogMeta, BlogMetaType, GlobalPagedResponse } from '~/types/appTypes';
-import type { CascaderProps, SelectProps } from 'ant-design-vue';
+import { BlogMeta, BlogMetaType } from '~/types/appTypes';
+import type { CascaderProps, SelectProps, TreeSelectProps } from 'ant-design-vue';
+import { TreeSelect } from 'ant-design-vue';
+import cloneDeep from 'lodash/cloneDeep'
+const SHOW_ALL = TreeSelect.SHOW_ALL;
 
 interface FormState {
   title: string,
@@ -56,28 +67,33 @@ const metasStore = useMetasStore()
 metasStore.getMetas(BlogMetaType.Category);
 metasStore.getMetas(BlogMetaType.Tag);
 
-const categoryOptions = ref<CascaderProps['options']>([])
-
 const tagOptions = ref<SelectProps['options']>([])
 
+const treeData = ref<TreeSelectProps['treeData']>([])
 
-watchEffect(() => {
-  categoryOptions.value = getTreeMeta(metasStore.state.categorys, 0)
-})
 
 watchEffect(() => {
   tagOptions.value = getTreeMeta(metasStore.state.tags, 0)
 })
 
-// getMetas(BlogMetaType.Category).then(res => {
-//   const metas = res.items
-//   categoryOptions.value = getTreeMeta(toRaw(metas), 0)
-// })
+watchEffect(() => {
+  treeData.value = getTreeData(cloneDeep(toRaw(metasStore.state.categorys)), 0);
+})
 
-// getMetas(BlogMetaType.Tag).then(res => {
-//   const metas = res.items
-//   tagOptions.value = getTreeMeta(toRaw(metas), 0)
-// })
+function getTreeData(metas: BlogMeta[], parent: number): TreeSelectProps['treeData'] {
+  const children: BlogMeta[] = metas.filter(x => x.parent === parent)
+  const options: TreeSelectProps['treeData'] = []
+
+  children.forEach(item => {
+    options.push({
+      label: item.name,
+      value: item.id,
+      children: getTreeData(metas, item.id)
+    })
+  });
+
+  return options;
+}
 
 function getTreeMeta(metas: BlogMeta[], parent: number): CascaderProps['options'] {
   const children: BlogMeta[] = metas.filter(x => x.parent === parent)

@@ -1,30 +1,19 @@
 <template>
   <div>
-    <a-space>
-      <a-button @click="showModal">新建分类</a-button>
-    </a-space>
-
-    <a-table :columns="columns" :data-source="data" bordered :pagination="false">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'title'">
-          <a>
-            {{ record.title }}
-          </a>
-        </template>
-        <template v-else-if="column.key === 'action'">
-          <span>
-            <a href="#" @click="showModal(record.id)">Add</a>
-            <a-divider type="vertical" />
-            <a href="#" @click="showEdit(record)">Edit</a>
-            <a-divider type="vertical" />
-            <a-popconfirm title="确定删除该数据?" ok-text="确定" cancel-text="取消"
-              @confirm="metas.delMeta(record.id, BlogMetaType.Category)">
-              <a href="#">Delete</a>
-            </a-popconfirm>
-          </span>
-        </template>
+    <a-tree :tree-data="treeData2" defaultExpandAll v-if="treeData2.length" blockNode>
+      <template #title="{ title, key, count }">
+        <a-dropdown :trigger="['contextmenu']">
+          <span>{{ title }} ({{ count }})</span>
+          <template #overlay>
+            <a-menu @click="(e: any) => onContextMenuClick(key, e.key as keyof handlerType)">
+              <a-menu-item key="edit">编辑</a-menu-item>
+              <a-menu-item key="del">删除</a-menu-item>
+              <a-menu-item key="add">新增</a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
       </template>
-    </a-table>
+    </a-tree>
 
     <a-modal v-model:visible="addVisible" title="Title" :confirm-loading="confirmLoading" @ok="handleOk">
       <a-form ref="formRef" :model="formState" name="basic" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }"
@@ -48,41 +37,81 @@
 </template>
 
 <script setup lang='ts'>
-import { TreeSelectProps } from 'ant-design-vue';
+import type { TreeSelectProps } from 'ant-design-vue';
+import { Modal } from 'ant-design-vue'
 import { BlogMeta, BlogMetaType } from '~/types/appTypes';
 import cloneDeep from 'lodash/cloneDeep'
+import { createVNode } from 'vue';
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
 const metas = useMetasStore()
 metas.getMetas(BlogMetaType.Category)
-
-const columns = [
-  {
-    title: '名称',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '文章数量',
-    dataIndex: 'count',
-    key: 'count',
-  },
-  {
-    title: '操作',
-    key: 'action',
-  },
-];
-
-const data = ref<BlogMeta[]>([])
-
-watchEffect(() => {
-  data.value = getTreeMeta(cloneDeep(toRaw(metas.state.categorys)), 0);
-})
 
 const treeData = ref<TreeSelectProps['treeData']>()
 
 watchEffect(() => {
   treeData.value = getTreeData(cloneDeep(toRaw(metas.state.categorys)), 0);
 })
+interface TreeData2 {
+  title: string
+  key: number
+  count: number
+  children?: TreeData2[]
+}
+const treeData2 = ref<TreeData2[]>([])
+
+watchEffect(() => {
+  treeData2.value = getTreeData2(cloneDeep(toRaw(metas.state.categorys)), 0);
+})
+
+function getTreeData2(metas: BlogMeta[], parent: number): TreeData2[] {
+  const children: BlogMeta[] = metas.filter(x => x.parent === parent)
+  const options: TreeData2[] = []
+
+  children.forEach(item => {
+    options.push({
+      title: item.name,
+      key: item.id,
+      count: item.count,
+      children: getTreeData2(metas, item.id)
+    })
+  });
+
+  return options;
+}
+
+interface handlerType {
+  add: (id: number) => void,
+  edit: (id: number) => void,
+  del: (id: number) => void,
+}
+
+const handler: handlerType = {
+  add: (id: number) => showModal(id),
+  edit: (id: number) => showEdit(metas.state.categorys.find(x => x.id === id) as BlogMeta),
+  del: (id: number) => {
+    const item = metas.state.categorys.find(x => x.id === id)
+
+    const childrenCount = metas.state.categorys.filter(x => x.parent === id).length
+
+    Modal.confirm({
+      title: `确认删除随笔分类：“${item?.name}”吗？`,
+      icon: createVNode(ExclamationCircleOutlined),
+      content: createVNode('div', { style: 'color:darkred;' }, `随笔分类下的文章不会被删除，${childrenCount}个子分类将会被一同删除`),
+      onOk() {
+        metas.delMeta(id, BlogMetaType.Category)
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+      class: 'test',
+    });
+  }
+}
+
+const onContextMenuClick = (treeKey: number, menuKey: keyof typeof handler) => {
+  handler[menuKey](treeKey);
+};
 
 function getTreeData(metas: BlogMeta[], parent: number): TreeSelectProps['treeData'] {
   const children: BlogMeta[] = metas.filter(x => x.parent === parent)
@@ -97,16 +126,6 @@ function getTreeData(metas: BlogMeta[], parent: number): TreeSelectProps['treeDa
   });
 
   return options;
-}
-
-function getTreeMeta(metas: BlogMeta[], parent: number): BlogMeta[] {
-  const children: BlogMeta[] = metas.filter(x => x.parent === parent)
-
-  children.forEach(item => {
-    item.children = getTreeMeta(metas, item.id)
-  });
-
-  return children;
 }
 
 const { loading: confirmLoading, visible: addVisible, showModal, handleOk, formRef, formState, rules, showEdit } = useAddMeta(BlogMetaType.Category)
