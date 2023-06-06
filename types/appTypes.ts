@@ -7,6 +7,16 @@ export interface GlobalPagedResponse<T> {
   totalPage: number
 }
 
+export interface GlobalResponse {
+  succeeded: boolean,
+  message?: string,
+  errors: string[]
+}
+
+export interface GlobalResponseT<T> extends GlobalResponse {
+  data: T
+}
+
 export enum BlogMetaType {
   Category = 0,
   Tag = 1
@@ -15,7 +25,7 @@ export enum BlogMetaType {
 export interface BlogMeta {
   id: number,
   name: string,
-  descriptiopn: string | null,
+  description: string | null,
   count: number,
   parent: number,
   children?: BlogMeta[]
@@ -24,8 +34,16 @@ export interface BlogMeta {
 export type BlogMetaCreateDto = {
   name: string,
   descriptiopn?: string,
-  parent: number,
-  type: 0 | 1
+  parent: number | undefined,
+  type: BlogMetaType
+}
+
+export type BlogMetaEditDto = {
+  id: number,
+  name: string,
+  descriptiopn?: string,
+  parent: number | undefined,
+  type: BlogMetaType
 }
 
 export interface PostType {

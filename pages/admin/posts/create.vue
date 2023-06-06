@@ -52,19 +52,32 @@ const formState = reactive<FormState>({
   publish: false
 })
 
+const metasStore = useMetasStore()
+metasStore.getMetas(BlogMetaType.Category);
+metasStore.getMetas(BlogMetaType.Tag);
+
 const categoryOptions = ref<CascaderProps['options']>([])
 
 const tagOptions = ref<SelectProps['options']>([])
 
-getMetas(BlogMetaType.Category).then(res => {
-  const metas = res.items
-  categoryOptions.value = getTreeMeta(toRaw(metas), 0)
+
+watchEffect(() => {
+  categoryOptions.value = getTreeMeta(metasStore.state.categorys, 0)
 })
 
-getMetas(BlogMetaType.Tag).then(res => {
-  const metas = res.items
-  tagOptions.value = getTreeMeta(toRaw(metas), 0)
+watchEffect(() => {
+  tagOptions.value = getTreeMeta(metasStore.state.tags, 0)
 })
+
+// getMetas(BlogMetaType.Category).then(res => {
+//   const metas = res.items
+//   categoryOptions.value = getTreeMeta(toRaw(metas), 0)
+// })
+
+// getMetas(BlogMetaType.Tag).then(res => {
+//   const metas = res.items
+//   tagOptions.value = getTreeMeta(toRaw(metas), 0)
+// })
 
 function getTreeMeta(metas: BlogMeta[], parent: number): CascaderProps['options'] {
   const children: BlogMeta[] = metas.filter(x => x.parent === parent)

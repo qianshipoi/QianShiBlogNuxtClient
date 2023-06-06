@@ -2,7 +2,7 @@
   <div>
     <a-button @click="showModal">新建标签</a-button>
 
-    <a-table :columns="columns" :data-source="metas.$state.tags" bordered>
+    <a-table :columns="columns" :data-source="metas.state.tags" bordered :pagination="false">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'title'">
           <a>
@@ -39,10 +39,10 @@
 
 
 <script setup lang='ts'>
-import { useMetas } from '~/stores/metas';
 import { BlogMetaType } from '~/types/appTypes';
 
-const metas = useMetas()
+const metas = useMetasStore()
+metas.getMetas(BlogMetaType.Tag)
 
 const columns = [
   {
@@ -60,10 +60,6 @@ const columns = [
     key: 'action',
   },
 ];
-
-onMounted(() => {
-  metas.getMetas(BlogMetaType.Tag)
-})
 
 const { loading: confirmLoading, visible: addVisible, showModal, handleOk, formRef, formState, rules } = useAddMeta(BlogMetaType.Tag)
 

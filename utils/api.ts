@@ -1,17 +1,12 @@
 import { BlogMeta, BlogMetaCreateDto, BlogMetaType, GlobalPagedResponse } from '~/types/appTypes'
 import Http from './request'
 
-export const getMetas = (type: BlogMetaType): Promise<GlobalPagedResponse<BlogMeta>> => {
-  return new Promise((resolve, reject) => {
-    Http.get('BlogMeta', {
-      type: type,
-      pageNumber: 1,
-      pageSize: 100
-    }, false).then(res => {
-      resolve(toRaw(res.value) as GlobalPagedResponse<BlogMeta>)
-    }).catch(err => {
-      reject(err)
-    })
+export const getMetas = (type: BlogMetaType) => {
+  return Http.get('BlogMeta', {
+    type: type,
+    pageNumber: 1,
+    pageSize: 100,
+    key: new Date().getTime()
   })
 }
 

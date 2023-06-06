@@ -30,12 +30,14 @@ const fetch = (url: string, options?: any): Promise<any> => {
     useFetch(reqURL, {
       ...options,
       onRequest({ request, options }) {
+        console.log(options);
       },
       onRequestError({ request, options, error }) {
         console.log(error);
         reject(error)
       },
       onResponse({ request, response, error }) {
+        console.log(response);
         if (response.status === 401) {
           navigateTo({
             path: '/login',
@@ -50,7 +52,7 @@ const fetch = (url: string, options?: any): Promise<any> => {
         resolve(toRef(response._data))
       },
       onResponseError({ request, response, options }) {
-
+        console.log(response);
       }
     })
   })
