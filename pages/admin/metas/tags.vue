@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-button @click="showModal">新建标签</a-button>
+    <a-button @click="showModal()">新建标签</a-button>
 
     <a-table :columns="columns" :data-source="metas.state.tags" bordered :pagination="false">
       <template #bodyCell="{ column, record }">
@@ -11,6 +11,7 @@
         </template>
         <template v-else-if="column.key === 'action'">
           <span>
+            <a href="#" @click="showEdit(record)">Edit</a>
             <a-divider type="vertical" />
             <a-popconfirm title="确定删除该数据?" ok-text="确定" cancel-text="取消"
               @confirm="metas.delMeta(record.id, BlogMetaType.Tag)">
@@ -61,6 +62,14 @@ const columns = [
   },
 ];
 
-const { loading: confirmLoading, visible: addVisible, showModal, handleOk, formRef, formState, rules } = useAddMeta(BlogMetaType.Tag)
+const {
+  loading: confirmLoading,
+  visible: addVisible,
+  showModal,
+  handleOk,
+  formRef,
+  formState,
+  showEdit,
+  rules } = useAddMeta(BlogMetaType.Tag)
 
 </script>

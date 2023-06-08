@@ -1,7 +1,7 @@
 <template>
   <div>
-    <a-form :model="formState" name="basic" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }" autocomplete="off"
-      @finish="onFinish" @finishFailed="onFinishFailed">
+    <a-form ref="formRef" :rules="rules" :model="formState" name="basic" :label-col="{ span: 4 }"
+      :wrapper-col="{ span: 20 }" autocomplete="off" @finish="onFinish" @finishFailed="onFinishFailed">
       <a-form-item label="标题">
         <a-input v-model="formState.title" allowClear />
       </a-form-item>
@@ -40,9 +40,10 @@
 
 <script setup lang='ts'>
 import { BlogMeta, BlogMetaType } from '~/types/appTypes';
-import type { CascaderProps, SelectProps, TreeSelectProps } from 'ant-design-vue';
+import type { FormInstance, SelectProps, TreeSelectProps } from 'ant-design-vue';
 import { TreeSelect } from 'ant-design-vue';
 import cloneDeep from 'lodash/cloneDeep'
+import { Rule } from 'ant-design-vue/es/form';
 const SHOW_ALL = TreeSelect.SHOW_ALL;
 
 interface FormState {
@@ -63,6 +64,8 @@ const formState = reactive<FormState>({
   publish: false
 })
 
+const formRef = ref<FormInstance>()
+
 const metasStore = useMetasStore()
 metasStore.getMetas(BlogMetaType.Category);
 metasStore.getMetas(BlogMetaType.Tag);
@@ -71,6 +74,10 @@ const tagOptions = ref<SelectProps['options']>([])
 
 const treeData = ref<TreeSelectProps['treeData']>([])
 
+const rules: Record<string, Rule[]> = {
+  title: [{ required: true, trigger: 'change', message: '名称不能为空。' }, { max: 128, trigger: 'change' }],
+  text: [{ required: true, trigger: 'change', message: '名称不能为空。' }],
+};
 
 watchEffect(() => {
   tagOptions.value = getTreeMeta(metasStore.state.tags, 0)
@@ -95,9 +102,9 @@ function getTreeData(metas: BlogMeta[], parent: number): TreeSelectProps['treeDa
   return options;
 }
 
-function getTreeMeta(metas: BlogMeta[], parent: number): CascaderProps['options'] {
+function getTreeMeta(metas: BlogMeta[], parent: number): SelectProps['options'] {
   const children: BlogMeta[] = metas.filter(x => x.parent === parent)
-  const options: CascaderProps['options'] = []
+  const options: SelectProps['options'] = []
 
   children.forEach(item => {
     options.push({
@@ -121,7 +128,7 @@ const onFinishFailed = (errorInfo: any) => {
 const editor = ref()
 
 const publish = () => {
-
+  formRef.value?.validateFields()
 }
 
 const save = () => {
@@ -133,6 +140,3 @@ const getHtml = () => {
 }
 
 </script>
-
-<style>
-</style>

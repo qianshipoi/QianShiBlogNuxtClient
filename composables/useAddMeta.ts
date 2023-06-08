@@ -1,5 +1,6 @@
-import { FormInstance } from "ant-design-vue";
+import { FormInstance, TreeSelectProps } from "ant-design-vue";
 import { Rule } from "ant-design-vue/es/form";
+import cloneDeep from "lodash/cloneDeep";
 import { BlogMeta, BlogMetaType } from "~/types/appTypes";
 
 export const useAddMeta = (type: BlogMetaType) => {
@@ -30,7 +31,11 @@ export const useAddMeta = (type: BlogMetaType) => {
   const formRef = ref<FormInstance>();
 
   const showModal = (parentId?: number) => {
-    formRef.value?.resetFields()
+    formState.id = 0
+    formState.name = ''
+    formState.description = ''
+    formState.parent = undefined
+
     if (parentId) {
       formState.parent = parentId
     }
@@ -41,9 +46,35 @@ export const useAddMeta = (type: BlogMetaType) => {
     formState.id = meta.id
     formState.name = meta.name
     formState.description = meta.description
-    formState.parent = meta.parent
+    formState.parent = meta.parent === 0 ? undefined : meta.parent
     visible.value = true;
   }
+
+  const parentTreeData = ref<TreeSelectProps['treeData']>()
+
+  watch(() => [formState.id, metas.state.categorys], () => {
+    parentTreeData.value = getTreeData(cloneDeep(toRaw(metas.state.categorys)), 0);
+  }, {
+    immediate: true
+  })
+
+  function getTreeData(metas: BlogMeta[], parent: number, disabled: boolean = false, level: number = 1): TreeSelectProps['treeData'] {
+    const children: BlogMeta[] = metas.filter(x => x.parent === parent)
+    const options: TreeSelectProps['treeData'] = []
+
+    children.forEach(item => {
+      const isDisabled = level === 3 ? true : disabled ? true : item.id === formState.id
+      options.push({
+        label: item.name,
+        value: item.id,
+        disabled: isDisabled,
+        children: getTreeData(metas, item.id, isDisabled, level + 1)
+      })
+    });
+
+    return options;
+  }
+
 
   const handleOk = async () => {
     let isSucceeded = false
@@ -78,6 +109,7 @@ export const useAddMeta = (type: BlogMetaType) => {
     loading,
     showModal,
     showEdit,
-    handleOk
+    handleOk,
+    parentTreeData: computed(() => parentTreeData.value)
   }
 }
