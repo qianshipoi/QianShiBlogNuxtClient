@@ -1,9 +1,11 @@
-import { FormInstance, TreeSelectProps } from "ant-design-vue";
+import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+import { FormInstance, Modal, TreeSelectProps } from "ant-design-vue";
 import { Rule } from "ant-design-vue/es/form";
 import cloneDeep from "lodash/cloneDeep";
-import { BlogMeta, BlogMetaType } from "~/types/appTypes";
+import { createVNode } from "vue";
+import { BlogMeta, BlogMetaType, handlerType } from "~/types/appTypes";
 
-export const useAddMeta = (type: BlogMetaType) => {
+export const useEditMeta = (type: BlogMetaType) => {
   const visible = ref(false)
 
   const metas = useMetasStore()
@@ -101,6 +103,33 @@ export const useAddMeta = (type: BlogMetaType) => {
     }
   };
 
+  const handler: handlerType = {
+    add: (id: number) => showModal(id),
+    edit: (id: number) => showEdit(metas.state.categorys.find(x => x.id === id) as BlogMeta),
+    del: (id: number) => {
+      const item = metas.state.categorys.find(x => x.id === id)
+
+      const childrenCount = metas.state.categorys.filter(x => x.parent === id).length
+
+      Modal.confirm({
+        title: `确认删除随笔分类：“${item?.name}”吗？`,
+        icon: createVNode(ExclamationCircleOutlined),
+        content: createVNode('div', { style: 'color:darkred;' }, `随笔分类下的文章不会被删除，${childrenCount}个子分类将会被一同删除`),
+        onOk() {
+          metas.delMeta(id, BlogMetaType.Category)
+        },
+        onCancel() {
+          console.log('Cancel');
+        },
+      });
+    }
+  }
+
+  const onContextMenuClick = (treeKey: number, menuKey: keyof typeof handler) => {
+    handler[menuKey](treeKey);
+  };
+
+
   return {
     formRef,
     rules,
@@ -110,6 +139,7 @@ export const useAddMeta = (type: BlogMetaType) => {
     showModal,
     showEdit,
     handleOk,
+    onContextMenuClick,
     parentTreeData: computed(() => parentTreeData.value)
   }
 }

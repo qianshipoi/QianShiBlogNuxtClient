@@ -7,6 +7,12 @@ export interface GlobalPagedResponse<T> {
   totalPage: number
 }
 
+export interface handlerType {
+  add: (id: number) => void,
+  edit: (id: number) => void,
+  del: (id: number) => void,
+}
+
 export interface GlobalResponse {
   succeeded: boolean,
   message?: string,

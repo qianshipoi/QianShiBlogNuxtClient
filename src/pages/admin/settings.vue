@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <NuxtPage />
-  </div>
+  <div>settings</div>
 </template>
 
 <script setup lang='ts'>
-const activeKey = ref('1')
+
 </script>
 
 <style>

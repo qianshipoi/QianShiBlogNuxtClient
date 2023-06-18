@@ -38,12 +38,14 @@
   </div>
 </template>
 
-
 <script setup lang='ts'>
 import { BlogMetaType } from '~/types/appTypes';
 
 const metas = useMetasStore()
-metas.getMetas(BlogMetaType.Tag)
+onMounted(() => {
+  metas.getMetas(BlogMetaType.Tag)
+  console.log('tags');
+})
 
 const columns = [
   {
@@ -70,6 +72,6 @@ const {
   formRef,
   formState,
   showEdit,
-  rules } = useAddMeta(BlogMetaType.Tag)
+  rules } = useEditMeta(BlogMetaType.Tag)
 
 </script>

@@ -8,7 +8,7 @@
             <a-menu @click="(e: any) => onContextMenuClick(key, e.key as keyof handlerType)">
               <a-menu-item key="edit">编辑</a-menu-item>
               <a-menu-item key="del">删除</a-menu-item>
-              <a-menu-item key="add" v-if="level !== 3">新增</a-menu-item>
+              <a-menu-item key="add" v-if="level < 3">新增</a-menu-item>
             </a-menu>
           </template>
         </a-dropdown>
@@ -37,11 +37,8 @@
 </template>
 
 <script setup lang='ts'>
-import { Modal } from 'ant-design-vue'
-import { BlogMeta, BlogMetaType } from '~/types/appTypes';
+import { BlogMeta, BlogMetaType, handlerType } from '~/types/appTypes';
 import cloneDeep from 'lodash/cloneDeep'
-import { createVNode } from 'vue';
-import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
 const metas = useMetasStore()
 metas.getMetas(BlogMetaType.Category)
@@ -77,49 +74,15 @@ function getTreeData2(metas: BlogMeta[], parent: number, level: number = 1): Tre
   return options;
 }
 
-interface handlerType {
-  add: (id: number) => void,
-  edit: (id: number) => void,
-  del: (id: number) => void,
-}
-
-const handler: handlerType = {
-  add: (id: number) => showModal(id),
-  edit: (id: number) => showEdit(metas.state.categorys.find(x => x.id === id) as BlogMeta),
-  del: (id: number) => {
-    const item = metas.state.categorys.find(x => x.id === id)
-
-    const childrenCount = metas.state.categorys.filter(x => x.parent === id).length
-
-    Modal.confirm({
-      title: `确认删除随笔分类：“${item?.name}”吗？`,
-      icon: createVNode(ExclamationCircleOutlined),
-      content: createVNode('div', { style: 'color:darkred;' }, `随笔分类下的文章不会被删除，${childrenCount}个子分类将会被一同删除`),
-      onOk() {
-        metas.delMeta(id, BlogMetaType.Category)
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-  }
-}
-
-const onContextMenuClick = (treeKey: number, menuKey: keyof typeof handler) => {
-  handler[menuKey](treeKey);
-};
-
-
 const {
   loading: confirmLoading,
   visible: addVisible,
-  showModal,
   handleOk,
   formRef,
   formState,
   rules,
-  showEdit,
-  parentTreeData } = useAddMeta(BlogMetaType.Category)
+  onContextMenuClick,
+  parentTreeData } = useEditMeta(BlogMetaType.Category)
 
 </script>
 

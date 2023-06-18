@@ -52,8 +52,6 @@
 </template>
 
 <script setup lang='ts'>
-import { message } from 'ant-design-vue';
-import { getPosts } from '~/utils/api'
 import { DownOutlined, SearchOutlined, FileAddOutlined } from '@ant-design/icons-vue';
 import type { UnwrapRef } from 'vue';
 import type { FormProps } from 'ant-design-vue';
@@ -80,17 +78,31 @@ const handleFinishFailed: FormProps['onFinishFailed'] = errors => {
 
 const loading = ref<boolean>(false)
 
-const getData = () => {
+const getData = async () => {
   loading.value = true;
 
-  getPosts().then(res => {
-    data.value = (res.value as GlobalPagedResponse<PostType>).items
-  }).catch(err => {
-    message.error(err)
-  }).finally(() => {
+  try {
+    const response = await httpGet<GlobalPagedResponse<PostType>>('/api/BlogContent', {
+      params: {
+        type: 0,
+        pageNumber: 1,
+        pageSize: 100
+      }
+    })
+    data.value = response.items
+  } catch (error) {
+
+  } finally {
     loading.value = true
-  })
+  }
 }
+
+const { $bus } = useNuxtApp();
+
+// $bus.$on("reload", (data: any) => {
+//   console.log(data);
+
+// })
 
 onMounted(() => getData())
 

@@ -2,6 +2,7 @@ import prismjs from 'vite-plugin-prismjs';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  srcDir: 'src/',
   vite: {
     plugins: [
       prismjs({
